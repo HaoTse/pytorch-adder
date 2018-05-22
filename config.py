@@ -1,0 +1,5 @@
+teacher_forcing_ratio = 1.0
+
+TRAINING_SIZE = 90000
+DIGITS = 3
+MAX_LENGTH = DIGITS + 1 + DIGITS
