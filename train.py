@@ -158,7 +158,7 @@ def train(input_variable, lengths, target_variable, mask, max_target_len, encode
 def trainIters(reverse, n_iteration, learning_rate, batch_size, n_layers, hidden_size,
                 print_every, save_every, dropout, loadFilename=None, attn_model='dot', decoder_learning_ratio=5.0):
 
-    voc, pairs = loadPrepareData()
+    voc, pairs = loadPrepareData('data/train_x.txt', 'data/train_y.txt')
 
     # training data
     print('Training pairs generating ...')
@@ -224,41 +224,3 @@ def trainIters(reverse, n_iteration, learning_rate, batch_size, n_layers, hidden
                 'loss': loss,
                 'plt': perplexity
             }, os.path.join(directory, '{}_{}.tar'.format(iteration, filename(reverse, 'backup_bidir_model'))))
-
-if __name__ == '__main__':
-    voc, pairs = loadPrepareData()
-
-    # training data
-    print('Training pairs generating ...')
-    training_batches = [batch2TrainData(voc, [random.choice(pairs) for _ in range(64)], False)
-                        for _ in range(1000)]
-
-    # model
-    print('Building encoder and decoder ...')
-    embedding = nn.Embedding(voc.n_words, 512)
-    encoder = EncoderRNN(voc.n_words, 512, embedding)
-    attn_model = 'dot'
-    decoder = LuongAttnDecoderRNN(attn_model, embedding, 512, voc.n_words)
-    # use cuda
-    encoder = encoder.to(device)
-    decoder = decoder.to(device)
-
-    # optimizer
-    print('Building optimizers ...')
-    encoder_optimizer = optim.Adam(encoder.parameters(), lr=0.01)
-    decoder_optimizer = optim.Adam(decoder.parameters(), lr=0.01 * 5)
-
-    # initialize
-    print('Initializing ...')
-    start_iteration = 1
-    perplexity = []
-    print_loss = 0
-
-    for iteration in tqdm(range(start_iteration, 1000 + 1)):
-        training_batch = training_batches[iteration - 1]
-        input_variable, lengths, target_variable, mask, max_target_len = training_batch
-
-        loss = train(input_variable, lengths, target_variable, mask, max_target_len, encoder,
-                     decoder, embedding, encoder_optimizer, decoder_optimizer, 64)
-        print_loss += loss
-        perplexity.append(loss)

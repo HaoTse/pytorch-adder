@@ -1,6 +1,6 @@
 import argparse
 from train import trainIters
-# from evaluate import runTest
+from evaluate import runTest
 
 def parse():
     parser = argparse.ArgumentParser(description='Attention Adder')
@@ -8,7 +8,6 @@ def parse():
     parser.add_argument('-te', '--test', help='Test the saved model')
     parser.add_argument('-l', '--load', help='Load the model and train')
 
-    parser.add_argument('-c', '--corpus', help='Test the saved model with vocabulary of the corpus')
     parser.add_argument('-i', '--input', action='store_true', help='Test the model by input the sentence')
 
     parser.add_argument('-r', '--reverse', action='store_true', help='Reverse the input sequence')
@@ -30,8 +29,8 @@ def parseFilename(filename, test=False):
     dataType = filename[-1][:-4] # remove '.tar'
     parse = dataType.split('_')
     reverse = 'reverse' in parse
-    layers, hidden = filename[-2].split('_')
-    n_layers = int(layers.split('-')[0])
+    layers, hidden = filename[-2].split('-')
+    n_layers = int(layers)
     hidden_size = int(hidden)
     return n_layers, hidden_size, reverse
 
@@ -45,9 +44,9 @@ def run(args):
         n_layers, hidden_size, reverse = parseFilename(args.load)
         trainIters(reverse, n_iteration, learning_rate, batch_size,
                     n_layers, hidden_size, print_every, save_every, dropout, loadFilename=args.load)
-    # elif args.test:
-    #     n_layers, hidden_size, reverse = parseFilename(args.test, True)
-    #     runTest(n_layers, hidden_size, reverse, args.test, beam_size, inp, args.corpus)
+    elif args.test:
+        n_layers, hidden_size, reverse = parseFilename(args.test, True)
+        runTest(n_layers, hidden_size, reverse, args.test, beam_size, inp)
     else:
         trainIters(reverse, n_iteration, learning_rate, batch_size,
                     n_layers, hidden_size, print_every, save_every, dropout)

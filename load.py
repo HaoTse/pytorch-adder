@@ -26,13 +26,13 @@ class Voc:
         else:
             self.word2count[word] += 1
 
-def readVocs():
+def readVocs(path_x, path_y):
     print("Reading lines...")
 
     # combine every two lines into pairs and normalize
-    with open('data/train_x.txt', 'r', encoding='utf-8') as f:
+    with open(path_x, 'r', encoding='utf-8') as f:
         train_x = f.read().splitlines()
-    with open('data/train_y.txt', 'r', encoding='utf-8') as f:
+    with open(path_y, 'r', encoding='utf-8') as f:
         train_y = f.read().splitlines()
     
     content = zip(train_x, train_y)
@@ -49,8 +49,8 @@ def filterPair(p):
 def filterPairs(pairs):
     return [pair for pair in pairs if filterPair(pair)]
 
-def loadPrepareData():
-    voc, pairs = readVocs()
+def loadPrepareData(path_x, path_y):
+    voc, pairs = readVocs(path_x, path_y)
     print("Read {!s} sentence pairs".format(len(pairs)))
     pairs = filterPairs(pairs)
     print("Trimmed to {!s} sentence pairs".format(len(pairs)))
@@ -61,6 +61,3 @@ def loadPrepareData():
     print("Counted words:", voc.n_words)
 
     return voc, pairs
-
-if __name__ == '__main__':
-    loadPrepareData()
